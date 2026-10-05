@@ -1,0 +1,243 @@
+# =============================================================================
+# SUPER-CRAB-V1 - Docker Compose Configuration
+# Author: Ian Carter Kulani, MSc
+# Version: 1.0.0
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # ==================== MAIN APPLICATION ====================
+  super-crab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: super-crab-v1:latest
+    container_name: super-crab-v1
+    hostname: super-crab
+    restart: unless-stopped
+    
+    # Environment variables
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - SUPER_CRAB_HOME=/app
+      - SUPER_CRAB_LOG_LEVEL=INFO
+      - TZ=UTC
+    env_file:
+      - .env
+    
+    # Volume mounts for persistence
+    volumes:
+      - ./data:/app/.super_crab_v1
+      - ./reports:/app/super_crab_reports
+      - ./temp:/app/temp
+      - ./config:/app/config:ro
+    
+    # Network configuration
+    ports:
+      - "5000:5000"     # Web Dashboard
+      - "8080:8080"     # Phishing Server
+      - "4444:4444"     # Metasploit Handler
+      - "8081:8081"     # Additional services
+    
+    # Network mode (for network scanning capabilities)
+    networks:
+      - super-crab-net
+    
+    # Capabilities for network operations
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_ADMIN
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+    
+    # Logging configuration
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ==================== ALPINE VARIANT ====================
+  super-crab-alpine:
+    build:
+      context: .
+      dockerfile: Dockerfile.alpine
+    image: super-crab-v1:alpine
+    container_name: super-crab-v1-alpine
+    hostname: super-crab-alpine
+    restart: unless-stopped
+    profiles:
+      - alpine
+    
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - SUPER_CRAB_HOME=/app
+      - TZ=UTC
+    
+    volumes:
+      - ./data-alpine:/app/.super_crab_v1
+      - ./reports-alpine:/app/super_crab_reports
+    
+    ports:
+      - "5001:5000"
+      - "8082:8080"
+    
+    networks:
+      - super-crab-net
+    
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+
+  # ==================== REDIS (Optional Cache) ====================
+  redis:
+    image: redis:7-alpine
+    container_name: super-crab-redis
+    hostname: redis
+    restart: unless-stopped
+    profiles:
+      - cache
+    
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-supercrab}
+    
+    volumes:
+      - redis-data:/data
+    
+    ports:
+      - "6379:6379"
+    
+    networks:
+      - super-crab-net
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==================== POSTGRESQL (Optional Database) ====================
+  postgres:
+    image: postgres:15-alpine
+    container_name: super-crab-postgres
+    hostname: postgres
+    restart: unless-stopped
+    profiles:
+      - database
+    
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-supercrab}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-supercrab}
+      - POSTGRES_DB=${POSTGRES_DB:-supercrab}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    
+    ports:
+      - "5432:5432"
+    
+    networks:
+      - super-crab-net
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-supercrab}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==================== METASPLOIT (Optional) ====================
+  metasploit:
+    image: metasploitframework/metasploit-framework:latest
+    container_name: super-crab-msf
+    hostname: metasploit
+    restart: unless-stopped
+    profiles:
+      - tools
+    
+    environment:
+      - MSF_RPC_USER=${MSF_RPC_USER:-msf}
+      - MSF_RPC_PASSWORD=${MSF_RPC_PASSWORD:-msf}
+    
+    volumes:
+      - msf-data:/home/msf/.msf4
+    
+    networks:
+      - super-crab-net
+    
+    ports:
+      - "55552:55552"
+    
+    stdin_open: true
+    tty: true
+
+  # ==================== NGINX (Optional Reverse Proxy) ====================
+  nginx:
+    image: nginx:alpine
+    container_name: super-crab-nginx
+    hostname: nginx
+    restart: unless-stopped
+    profiles:
+      - proxy
+    
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    networks:
+      - super-crab-net
+    
+    depends_on:
+      - super-crab
+
+# ==================== NETWORKS ====================
+networks:
+  super-crab-net:
+    driver: bridge
+    name: super-crab-network
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ==================== VOLUMES ====================
+volumes:
+  redis-data:
+    name: super-crab-redis-data
+  postgres-data:
+    name: super-crab-postgres-data
+  msf-data:
+    name: super-crab-msf-data

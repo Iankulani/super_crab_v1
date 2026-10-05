@@ -1,0 +1,72 @@
+# =============================================================================
+# SUPER-CRAB-V1 - Docker Compose Development Override
+# Author: Ian Carter Kulani, MSc
+# Version: 1.0.0
+# =============================================================================
+# This file overrides docker-compose.yml for development
+# Usage: docker-compose up -d (automatically loads override)
+# =============================================================================
+
+version: '3.8'
+
+services:
+  super-crab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: super-crab-v1-dev
+    hostname: super-crab-dev
+    
+    # Development environment
+    environment:
+      - PYTHONDONTWRITEBYTECODE=0
+      - PYTHONUNBUFFERED=1
+      - SUPER_CRAB_ENV=development
+      - SUPER_CRAB_LOG_LEVEL=DEBUG
+      - SUPER_CRAB_DEBUG=true
+      - TZ=UTC
+    
+    # Mount source code for live reload
+    volumes:
+      - ./super_crab_v1.py:/app/super_crab_v1.py:ro
+      - ./requirements-check.py:/app/requirements-check.py:ro
+      - ./data-dev:/app/.super_crab_v1
+      - ./reports-dev:/app/super_crab_reports
+      - ./temp-dev:/app/temp
+    
+    # Override entrypoint for development
+    command: ["python", "-u", "super_crab_v1.py"]
+    
+    # Development ports
+    ports:
+      - "5000:5000"
+      - "8080:8080"
+      - "4444:4444"
+      - "5678:5678"     # Debug port
+    
+    # Add debug capabilities
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    
+    # Don't restart in development
+    restart: "no"
+    
+    # Resource limits for development
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+
+  # Development Redis
+  redis:
+    ports:
+      - "6379:6379"
+
+  # Development PostgreSQL
+  postgres:
+    ports:
+      - "5432:5432"

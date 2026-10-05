@@ -1,0 +1,105 @@
+# =============================================================================
+# SUPER-CRAB-V1 - Development Dockerfile
+# Author: Ian Carter Kulani, MSc
+# Version: 1.0.0
+# =============================================================================
+# This Dockerfile is optimized for development with:
+# - Hot reload support
+# - Debugger support
+# - Development tools included
+# =============================================================================
+
+FROM python:3.11-slim-bookworm
+
+LABEL maintainer="Ian Carter Kulani, MSc"
+LABEL description="SUPER-CRAB-V1 - Development Environment"
+LABEL version="1.0.0"
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=0 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONPATH=/app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Build tools
+    build-essential \
+    gcc \
+    g++ \
+    make \
+    git \
+    # Network tools
+    nmap \
+    curl \
+    wget \
+    netcat-openbsd \
+    dnsutils \
+    traceroute \
+    whois \
+    openssh-client \
+    # SSL/TLS
+    openssl \
+    ca-certificates \
+    # Development tools
+    vim \
+    nano \
+    less \
+    htop \
+    procps \
+    net-tools \
+    iputils-ping \
+    iproute2 \
+    # Debugging tools
+    gdb \
+    strace \
+    ltrace \
+    # Libraries
+    libssl-dev \
+    libffi-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    libjpeg-dev \
+    libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --upgrade pip setuptools wheel
+
+# Install production requirements
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
+
+# Install development requirements
+COPY requirements-dev.txt /tmp/requirements-dev.txt
+RUN pip install -r /tmp/requirements-dev.txt
+
+# Install debugging tools
+RUN pip install \
+    ipdb \
+    pdbpp \
+    ipython \
+    pytest-watch \
+    watchdog \
+    debugpy
+
+# Create app directory
+WORKDIR /app
+
+# Create necessary directories
+RUN mkdir -p /app/.super_crab_v1 \
+    /app/super_crab_reports \
+    /app/temp \
+    /app/tests
+
+# Copy application files
+COPY super_crab_v1.py /app/
+COPY requirements-check.py /app/
+
+# Expose ports
+EXPOSE 5000 8080 4444 5678
+
+# Development command (with debugger support)
+CMD ["python", "-u", "-m", "debugpy", "--listen", "0.0.0.0:5678", "--wait-for-client", "super_crab_v1.py"]

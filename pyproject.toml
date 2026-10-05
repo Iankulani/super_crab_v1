@@ -1,0 +1,335 @@
+# =============================================================================
+# SUPER-CRAB-V1 - Python Project Configuration
+# Author: Ian Carter Kulani, MSc
+# Version: 1.0.0
+# =============================================================================
+
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel>=0.41.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "super-crab-v1"
+version = "1.0.0"
+description = "SUPER-CRAB-V1 - Cyber Command & Control Platform"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Ian Carter Kulani", email = "ian.kulani@example.com"}
+]
+maintainers = [
+    {name = "Ian Carter Kulani", email = "ian.kulani@example.com"}
+]
+keywords = [
+    "cybersecurity",
+    "penetration-testing",
+    "security-tools",
+    "automation",
+    "red-team",
+    "blue-team",
+    "threat-detection",
+    "vulnerability-scanning"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: System :: Networking :: Monitoring",
+    "Topic :: System :: Systems Administration",
+]
+requires-python = ">=3.8"
+
+dependencies = [
+    # Core
+    "colorama>=0.4.6",
+    "psutil>=5.9.0",
+    "requests>=2.31.0",
+    "pyyaml>=6.0",
+    "python-dotenv>=1.0.0",
+    
+    # Cryptography
+    "cryptography>=41.0.0",
+    "pycryptodome>=3.19.0",
+    
+    # Networking
+    "scapy>=2.5.0",
+    "paramiko>=3.3.0",
+    "dnspython>=2.4.0",
+    "whois>=0.9.27",
+    "pyshorteners>=1.0.1",
+    
+    # Web
+    "flask>=2.3.0",
+    "flask-socketio>=5.3.0",
+    "flask-cors>=4.0.0",
+    
+    # Bots
+    "discord.py>=2.3.0",
+    "telethon>=1.31.0",
+    "slack-sdk>=3.23.0",
+    
+    # Automation
+    "selenium>=4.15.0",
+    "webdriver-manager>=4.0.0",
+    
+    # Data
+    "numpy>=1.24.0",
+    "beautifulsoup4>=4.12.0",
+    
+    # Visualization
+    "matplotlib>=3.7.0",
+    
+    # Documents
+    "reportlab>=4.0.0",
+    
+    # Keylogger
+    "pynput>=1.7.6",
+    "pyperclip>=1.8.2",
+    "pyautogui>=0.9.54",
+    
+    # Utilities
+    "qrcode>=7.4.2",
+    "pillow>=10.1.0",
+    "tqdm>=4.66.0",
+    "tabulate>=0.9.0",
+    "rich>=13.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.12.0",
+    "black>=23.11.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "mypy>=1.7.0",
+    "pylint>=3.0.0",
+    "bandit>=1.7.5",
+    "safety>=2.3.0",
+    "pre-commit>=3.5.0",
+]
+
+docs = [
+    "sphinx>=7.2.0",
+    "sphinx-rtd-theme>=1.3.0",
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.4.0",
+]
+
+all = [
+    "super-crab-v1[dev,docs]",
+]
+
+[project.urls]
+Homepage = "https://github.com/ianckulani/super-crab-v1"
+Documentation = "https://super-crab-v1.readthedocs.io"
+Repository = "https://github.com/ianckulani/super-crab-v1.git"
+Changelog = "https://github.com/ianckulani/super-crab-v1/blob/main/CHANGELOG.md"
+Issues = "https://github.com/ianckulani/super-crab-v1/issues"
+
+[project.scripts]
+super-crab = "super_crab_v1:main"
+
+[tool.setuptools]
+py-modules = ["super_crab_v1"]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["super_crab*"]
+exclude = ["tests*", "docs*"]
+
+# ==================== BLACK ====================
+[tool.black]
+line-length = 120
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# ==================== ISORT ====================
+[tool.isort]
+profile = "black"
+line_length = 120
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_gitignore = true
+known_first_party = ["super_crab_v1"]
+known_third_party = [
+    "colorama",
+    "psutil",
+    "requests",
+    "cryptography",
+    "paramiko",
+    "scapy",
+    "dns",
+    "flask",
+    "discord",
+    "telethon",
+    "slack_sdk",
+    "selenium",
+    "reportlab",
+    "pynput",
+]
+
+# ==================== FLAKE8 ====================
+[tool.flake8]
+max-line-length = 120
+extend-ignore = [
+    "E203",  # whitespace before ':'
+    "W503",  # line break before binary operator
+    "E501",  # line too long (handled by black)
+    "C901",  # too complex
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+]
+max-complexity = 15
+
+# ==================== MYPY ====================
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+no_strict_optional = true
+allow_untyped_defs = true
+allow_incomplete_defs = true
+check_untyped_defs = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+exclude = [
+    "venv/",
+    ".venv/",
+    "build/",
+    "dist/",
+]
+
+# ==================== PYTEST ====================
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+    "--strict-config",
+]
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "network: marks tests that require network access",
+    "security: marks security-related tests",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+asyncio_mode = "auto"
+
+# ==================== COVERAGE ====================
+[tool.coverage.run]
+source = ["."]
+omit = [
+    "tests/*",
+    "venv/*",
+    ".venv/*",
+    "setup.py",
+]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+show_missing = true
+fail_under = 50
+
+# ==================== BANDIT ====================
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv"]
+skips = ["B101", "B102", "B103", "B104", "B105", "B106", "B107", "B108", "B110", "B112", "B301", "B302", "B303", "B304", "B305", "B306", "B307", "B308", "B309", "B310", "B311", "B312", "B313", "B314", "B315", "B316", "B317", "B318", "B319", "B320", "B321", "B322", "B323", "B324", "B325", "B401", "B402", "B403", "B404", "B405", "B406", "B407", "B408", "B409", "B410", "B411", "B412", "B413", "B415", "B501", "B502", "B503", "B504", "B505", "B506", "B507", "B601", "B602", "B603", "B604", "B605", "B606", "B607", "B608", "B609", "B610", "B611", "B701", "B702", "B703"]
+
+# ==================== PYLINT ====================
+[tool.pylint.main]
+py-version = "3.10"
+ignore = ["tests", "venv", ".venv"]
+jobs = 0
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.messages_control]
+disable = [
+    "C0103",  # invalid-name
+    "C0114",  # missing-module-docstring
+    "C0115",  # missing-class-docstring
+    "C0116",  # missing-function-docstring
+    "C0301",  # line-too-long
+    "C0302",  # too-many-lines
+    "C0411",  # wrong-import-order
+    "C0412",  # ungrouped-imports
+    "C0413",  # wrong-import-position
+    "C0415",  # import-outside-toplevel
+    "R0801",  # duplicate-code
+    "R0902",  # too-many-instance-attributes
+    "R0903",  # too-few-public-methods
+    "R0912",  # too-many-branches
+    "R0913",  # too-many-arguments
+    "R0914",  # too-many-locals
+    "R0915",  # too-many-statements
+    "W0212",  # protected-access
+    "W0511",  # fixme
+    "W0613",  # unused-argument
+    "E1101",  # no-member
+    "E1120",  # no-value-for-parameter
+    "E1121",  # too-many-function-args
+    "E1136",  # unsubscriptable-object
+]
+
+# ==================== YAPF ====================
+[tool.yapf]
+based_on_style = "pep8"
+column_limit = 120
