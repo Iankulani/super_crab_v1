@@ -14,7 +14,6 @@ With its flexible architecture and advanced security features, Super Crab aims t
 
 Developed by Accurate Cyber Defense, Super Crab represents a commitment to developing innovative cybersecurity technologies that empower security professionals to understand digital threats, assess vulnerabilities, and build stronger digital defenses.
 
-
 # How to clone the repo
 ```bash
 
