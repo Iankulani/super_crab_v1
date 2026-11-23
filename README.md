@@ -31,3 +31,4 @@ python3 super_crab_v1.py
 
 # Star History
 
+![Star History](https://shieldcn.dev/chart/github/stars/Iankulani/super_crab_v1.svg?theme=violet)
